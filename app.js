@@ -7,7 +7,7 @@ app.set('port', process.env.PORT || 3000);
 app.use(bodyParser.text())
 
 app.get('/', function (req, res) {
-  res.send('<html><body><h1>Hello World</h1></body></html>');
+  res.send('<html><body><h1>Firebots Kotlin Runner</h1></body></html>');
 });
 
 app.post('/kotlin', function(req, res) { //A
@@ -27,15 +27,20 @@ app.post('/kotlin', function(req, res) { //A
     fs.writeFileSync(scriptPath, input);
 
     // Run kotlin
-    const { execSync } = require('child_process');
-    // stderr is sent to stdout of parent process
-    // you can set options.stdio if you want it to go elsewhere
-    let stdout = execSync('kotlinc -script '+scriptPath);
+    //const { execSync } = require('child_process');
+    //let stdout = execSync('kotlinc -script '+scriptPath);
+    const { exec } = require('child_process');
+    exec('kotlinc -script '+scriptPath, (err, stdout, stderr) => {
+        if (err) {
+            console.error(`exec error: ${err}`);
+            res.status(400).send(err);
+            return;
+        }
+        res.status(200).send(stdout);
+    });
 
-    res.status(200).send(stdout);
 });
 
 http.createServer(app).listen(app.get('port'), function(){
   console.log('Express server listening on port ' + app.get('port'));
 });
- 
